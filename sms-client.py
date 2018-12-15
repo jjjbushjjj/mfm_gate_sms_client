@@ -7,14 +7,15 @@ from uuid import uuid4
 LOG_FILENAME = '/tmp/sms.log'
 
 logger = logging.getLogger(__name__)
-logger.setLevel(logging.DEBUG)
+logger.setLevel(logging.INFO)
 formatter = logging.Formatter('%(asctime)s [%(levelname)s] %(message)s')
-# handler = logging.StreamHandler(sys.stdout)
 # 100M per logfile rotate every 2
-handler = logging.handlers.RotatingFileHandler(
+handler_logfile = logging.handlers.RotatingFileHandler(
               LOG_FILENAME, maxBytes=104857600, backupCount=2)
-handler.setFormatter(formatter)
-logger.addHandler(handler)
+handler_logfile.setFormatter(formatter)
+handler_logfile.setLevel(logging.INFO)
+
+logger.addHandler(handler_logfile)
 
 def handle_exception(exc_type, exc_value, exc_traceback):
     if issubclass(exc_type, KeyboardInterrupt):
@@ -41,9 +42,9 @@ def send(args):
 
     # Sender implementation here
 
-# Get message astatus
+# Get message status
 def get_status(args):
-    logger.info("Trying to get status for message: %s", args.messageId)
+    logger.debug("Trying to get status for message: %s", args.messageId)
 
     # Getter implementation here
 
@@ -91,8 +92,14 @@ def main():
     args = parser.parse_args()
 
     if args.verbose:
+        # Add another logging handler to get output to console
+        handler_stream = logging.StreamHandler(sys.stdout)
+        handler_stream.setFormatter(formatter)
+        handler_stream.setLevel(logging.DEBUG)
+        logger.addHandler(handler_stream)
         logger.setLevel(logging.DEBUG)
     else:
+        # Just logs this level of messages
         logger.setLevel(logging.INFO)
 
     args.func(args)
