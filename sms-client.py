@@ -1,4 +1,7 @@
+#!/usr/bin/env python
+
 import sys
+import os
 import argparse
 import logging
 import logging.handlers
@@ -12,7 +15,6 @@ LOG_FILENAME = '/tmp/sms.log'
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
 formatter = logging.Formatter('%(asctime)s [%(levelname)s] %(message)s')
-# 100M per logfile rotate every 2
 
 
 def handle_exception(exc_type, exc_value, exc_traceback):
@@ -28,7 +30,7 @@ sys.excepthook = handle_exception
 # subcommand functions
 
 # Send message
-def send(client, args):
+def send(client, auth, args):
     """ Try to send message over sms gateway """
 
     logger.debug("Connecting with those params: Wsdl url: %s, "
@@ -40,22 +42,47 @@ def send(client, args):
     messageId = uuid4()
     logger.info("Sending message with ID: %s To: %s", messageId, args.phone)
     logger.debug("Client: %s", client)
-    # request_data = client.factory.create('ns0:CapitalCity')
-    # request_data.sCountryISOCode = "533"
-    # result = client.service.CapitalCity('RU')
-    # result = client.service.CountriesUsingCurrency('EUR')
-    result = client.service.FullCountryInfo('RU')
-    result = dict(result)
-    print result['Languages'][0][0]['sName']
+
+    auth = client.factory.create('ns0:Auth')
+    auth.login = args.user
+    auth.password = args.password
+
+
+    # Init message fields
+    # Gen messageId
+    messageId = uuid4()
+
+    OutMessageTemplate = client.factory.create('ns0:OutMessageTemplate')
+    OutMessageTemplate.text = args.message 
+
+
+    # Format New Message
+    consumeOutMessageArg = client.factory.create('ns0:ConsumeOutMessageArg')
+    consumeOutMessageArg.messageId = messageId
+    consumeOutMessageArg.outMessageTypeId = args.type
+    consumeOutMessageArg.subject = args.sender
+    consumeOutMessageArg.address = args.phone
+    consumeOutMessageArg.outMessageTemplate = OutMessageTemplate
+
+    # Send it
+    send_status = client.service.consumeOutMessage(auth=auth, consumeOutMessageArg=consumeOutMessageArg)
+    logger.debug(send_status)
 
 
 # Get message status
-def get_status(client, args):
+def get_status(client, auth, args):
     """ Get status of previously sended message """
 
     logger.debug("Trying to get status for message: %s", args.messageId)
+    getOutMessageDlvStatusArg = client.factory.create('ns0:GetOutMessageDlvStatusArg')
+    getOutMessageDlvStatusArg.messageId = args.messageId
 
-    # Getter implementation here
+    message_status = client.service.getOutMessageDlvStatus(auth=auth, getOutMessageDlvStatusArg=getOutMessageDlvStatusArg)
+    message_status = dict(message_status)
+    logger.info("Delivery responseCode: %s with status: %s", \
+                message_status['responseCode'], \
+                message_status['getOutMessageDlvStatusResult'][0]['outMessageDlvStatus']['dlvStatus'])
+
 
 
 def main():
@@ -73,7 +100,7 @@ def main():
     parser.add_argument("-p", "--password", help="Smsgate user password",
                         action="store", type=str)
     parser.add_argument("-w", "--wsdl",
-            help="Sms gate wsdl url",
+            help="Sms gate wsdl url or file.",
             action="store", default='http://sms-gate/sendmessage.wsdl')
     
     subparsers = parser.add_subparsers(help='sub-command help')
@@ -115,10 +142,24 @@ def main():
     
     logger.addHandler(handler)
 
+    #Constuct wsdl url
+    if args.wsdl.split(':')[0] in ['https', 'http']:
+        # use as it is
+        pass
+    else:
+        # local file
+        args.wsdl = 'file://' + os.path.abspath(args.wsdl)
+
     # Init new soap client
     client = Client(args.wsdl)
+
+    # Add auth info
+    auth = client.factory.create('ns0:Auth')
+    auth.login = args.user
+    auth.password = args.password
+
     # run appropriate function
-    args.func(client, args)
+    args.func(client, auth, args)
 
     
     

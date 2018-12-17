@@ -1,0 +1,647 @@
+<?xml version="1.0" encoding="UTF-8"?><definitions xmlns="http://schemas.xmlsoap.org/wsdl/" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:tns="http://www.mfms.ru/mfmsgate/out-message-service" xmlns:typens="http://www.mfms.ru/mfmsgate/out-message-service" targetNamespace="http://www.mfms.ru/mfmsgate/out-message-service">
+    <types>
+
+        <xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="http://www.w3.org/2001/XMLSchema" targetNamespace="http://www.mfms.ru/mfmsgate/out-message-service" xmlns:typens="http://www.mfms.ru/mfmsgate/out-message-service">
+            <xsd:element name="ConsumeOutMessageRequest">
+                <xsd:complexType>
+                    <xsd:sequence>
+                        <xsd:element maxOccurs="1" minOccurs="1" name="auth" type="typens:Auth"/>
+                        <xsd:element maxOccurs="unbounded" minOccurs="1" name="consumeOutMessageArg" type="typens:ConsumeOutMessageArg"/>
+                    </xsd:sequence>
+                </xsd:complexType>
+            </xsd:element>
+
+            <xsd:element name="ConsumeOutMessageResponse">
+                <xsd:complexType>
+                    <xsd:sequence>
+                        <xsd:element maxOccurs="1" minOccurs="1" name="responseCode" type="typens:ConsumeOutMessageResponseCode"/>
+                        <xsd:element maxOccurs="unbounded" minOccurs="0" name="consumeOutMessageResult" type="typens:ConsumeOutMessageResult"/>
+                    </xsd:sequence>
+                </xsd:complexType>
+            </xsd:element>
+
+            <xsd:element name="GetOutMessageRequest">
+                <xsd:complexType>
+                    <xsd:sequence>
+                        <xsd:element maxOccurs="1" minOccurs="1" name="auth" type="typens:Auth"/>
+                        <xsd:element maxOccurs="unbounded" minOccurs="1" name="getOutMessageArg" type="typens:GetOutMessageArg"/>
+                    </xsd:sequence>
+                </xsd:complexType>
+            </xsd:element>
+
+            <xsd:element name="GetOutMessageResponse">
+                <xsd:complexType>
+                    <xsd:sequence>
+                        <xsd:element maxOccurs="1" minOccurs="1" name="responseCode" type="typens:GetOutMessageResponseCode"/>
+                        <xsd:element maxOccurs="unbounded" minOccurs="0" name="getOutMessageResult" type="typens:GetOutMessageResult"/>
+                    </xsd:sequence>
+                </xsd:complexType>
+            </xsd:element>
+
+            <xsd:element name="GetOutMessageDlvStatusRequest">
+                <xsd:complexType>
+                    <xsd:sequence>
+                        <xsd:element maxOccurs="1" minOccurs="1" name="auth" type="typens:Auth"/>
+                        <xsd:element maxOccurs="unbounded" minOccurs="1" name="getOutMessageDlvStatusArg" type="typens:GetOutMessageDlvStatusArg"/>
+                    </xsd:sequence>
+                </xsd:complexType>
+            </xsd:element>
+
+            <xsd:element name="GetOutMessageDlvStatusResponse">
+                <xsd:complexType>
+                    <xsd:sequence>
+                        <xsd:element maxOccurs="1" minOccurs="1" name="responseCode" type="typens:GetOutMessageDlvStatusResponseCode"/>
+                        <xsd:element maxOccurs="unbounded" minOccurs="0" name="getOutMessageDlvStatusResult" type="typens:GetOutMessageDlvStatusResult"/>
+                    </xsd:sequence>
+                </xsd:complexType>
+            </xsd:element>
+
+            <xsd:element name="OutMessageServiceFault">
+                <xsd:complexType>
+                    <xsd:all>
+                        <xsd:element maxOccurs="1" minOccurs="1" name="faultCode" type="typens:OutMessageServiceFaultCode"/>
+                    </xsd:all>
+                </xsd:complexType>
+            </xsd:element>
+            <xsd:complexType name="Auth">
+                <xsd:all>
+                    <xsd:element maxOccurs="1" minOccurs="1" name="login" type="xsd:string"/>
+                    <xsd:element maxOccurs="1" minOccurs="1" name="password" type="xsd:string"/>
+                </xsd:all>
+            </xsd:complexType>
+
+            <xsd:complexType name="ConsumeOutMessageArg">
+                <xsd:all>
+                    <xsd:element maxOccurs="1" minOccurs="1" name="messageId" type="xsd:string">
+                        <xsd:annotation>
+                            <xsd:documentation>
+                                Уникальный идентификатор для исходящего сообщения который присваивается ИС.
+                            </xsd:documentation>
+                        </xsd:annotation>
+                    </xsd:element>
+                    <xsd:element maxOccurs="1" minOccurs="1" name="outMessageTypeId" type="xsd:string">
+                        <xsd:annotation>
+                            <xsd:documentation>
+                                Тип посылаемого сообщения. Тип должен быть зарегистрирован в шлюзе.
+                            </xsd:documentation>
+                        </xsd:annotation>
+                    </xsd:element>
+                    <xsd:element maxOccurs="1" minOccurs="0" name="subject" type="xsd:string">
+                        <xsd:annotation>
+                            <xsd:documentation>
+                                Подпись исходящего сообщения. Телефонный номер или строковый отправитель SMS-сообщения.
+                                Например, «Bank» без кавычек. При получении SMS-сообщения, эта строка отобразится на мобильном телефоне в поле «От кого».
+                            </xsd:documentation>
+                        </xsd:annotation>
+                    </xsd:element>
+                    <xsd:element maxOccurs="1" minOccurs="1" name="address">
+                        <xsd:annotation>
+                            <xsd:documentation>
+                                Адрес получателя исходящего сообщения. Телефонный номер абонента (клиента) в международном формате ITU-T E.164, т.е. только цифры, первая – код страны, без знака «+».
+                            </xsd:documentation>
+                        </xsd:annotation>
+                        <xsd:simpleType>
+                            <xsd:restriction base="xsd:string">
+                                <xsd:pattern value="7[0-9]{10}|[0-689][0-9]{8,14}"/>
+                            </xsd:restriction>
+                        </xsd:simpleType>
+                    </xsd:element>
+                    <xsd:element maxOccurs="1" minOccurs="0" name="clientId" type="xsd:string">
+                        <xsd:annotation>
+                            <xsd:documentation>
+                                Идентификатор клиента в системе банка
+                            </xsd:documentation>
+                        </xsd:annotation>
+                    </xsd:element>
+                    <xsd:element maxOccurs="1" minOccurs="0" name="priority" type="typens:OutMessagePriority">
+                        <xsd:annotation>
+                            <xsd:documentation>
+                                Приоритет исходящего сообщения.
+                            </xsd:documentation>
+                        </xsd:annotation>
+                    </xsd:element>
+                    <xsd:element maxOccurs="1" minOccurs="0" name="startTime" type="xsd:dateTime">
+                        <xsd:annotation>
+                            <xsd:documentation>
+                                Момент времени после которого можно начинать отправку сообщения.
+
+                                Параметры startTime и stopTime используются для указания интервала отправки сообщения по календарю.
+                                Если startTime не указан, сообщение отправляется по факту получения от ИС с учетом текущей очереди.
+
+                                Допустимо указание параметра startTime без указания stopTime.
+
+                                Практическое применение:
+
+                                Отправка сообщений в будущем – т.н. отложенные сообщения. ИС может передать сообщение с указанным startTime = 2014-02-07T11:30:00.
+                                Сообщение начнет отправляться не ранее указанной даты и времени.
+                            </xsd:documentation>
+                        </xsd:annotation>
+                    </xsd:element>
+                    <xsd:element maxOccurs="1" minOccurs="0" name="stopTime" type="xsd:dateTime">
+                        <xsd:annotation>
+                            <xsd:documentation>
+                                Момент времени до которого отправка сообщения должна быть выполнена.
+
+                                Параметры startTime и stopTime используются для указания интервала отправки сообщения по календарю.
+                                Если stopTime не указан, сообщение можно отправлять в не зависимости от того как долго сообщение лежало в очереди на отправку, т.е. сообщение не может устареть.
+
+                                Допустимо указание параметра stopTime без указания startTime.
+
+                                Практическое применение:
+
+                                Ограничение на отправку сообщений – сообщение должно быть отправлено не ранее 2014-02-08T00:00:00 (startTime) и не позднее 2014-02-08T23:59:59 (stopTime).
+                                Если сообщение по какой-либо причине не было отправлено за указанный интервал (большая очередь или технические проблемы) то сообщение не будет отправлено никогда.
+                            </xsd:documentation>
+                        </xsd:annotation>
+                    </xsd:element>
+                    <xsd:element maxOccurs="1" minOccurs="0" name="dlvInterval" type="typens:DlvInterval"/>
+                    <xsd:element maxOccurs="1" minOccurs="0" name="timezone">
+                        <xsd:annotation>
+                            <xsd:documentation>
+                                Код временной зоны получателя в соответствии с которой будет учитываться интервал доставки сообщения.
+                                Используется для переопределения временной зоны абонента определенной sms-шлюзом по номеру телефона.
+
+                                Например, ИС отправляет сообщение абоненту 7924ххххххх.
+                                Sms-шлюз определяет временную зону абонента – Дальний Восток (GMT+11:00), но Банк знает, что абонент в данный момент находится в Москве
+                                и может переопределить временную зону для отправки сообщения, указав timezone = GMT+4:00.
+                                Этот параметр обычно используется в совокупности с параметрами dlvStart и dlvStop.
+                            </xsd:documentation>
+                        </xsd:annotation>
+                        <xsd:simpleType>
+                            <xsd:restriction base="xsd:string">
+                                <xsd:pattern value="GMT[+\-][01]?[0-9](:[0-5][0-9])?"/>
+                            </xsd:restriction>
+                        </xsd:simpleType>
+                    </xsd:element>
+                    <xsd:element maxOccurs="1" minOccurs="0" name="comment" type="xsd:string"/>
+                    <xsd:element maxOccurs="1" minOccurs="0" name="options" type="typens:OutMessageOptions"/>
+                    <xsd:element maxOccurs="1" minOccurs="1" name="outMessageTemplate" type="typens:OutMessageTemplate"/>
+                    <xsd:element minOccurs="0" name="instantMessage" type="typens:InstantMessage"/>
+                </xsd:all>
+            </xsd:complexType>
+
+            <xsd:complexType name="DlvInterval">
+                <xsd:annotation>
+                    <xsd:documentation>
+                        Промежуток времени дня когда получателю можно доставлять сообщение.
+
+                        Пример использования:
+                        Сообщение пришло 2014-02-07 и в нём указано startTime = 2014-02-10T20:00:00, dlvStart = 10 dlvStop = 18
+
+                        Такое сообщение будет отправлено 2014-02-11 в 10:00 т.к. это ближайшее время после startTime, попадающее при этом в интервал доставки с 10 до 18
+
+                        Если же кроме всего прочего окажется что временная зона клиента отличается от московской (это определяется либо по номеру телефона клиента, либо через тег timezone),
+                        dlvStart и dlvStop будут учитываться в этой временной зоне.
+                        Например, если в примере выше временная зона клиента GMT+11, сообщение будет доставлено в 2014-02-11 в 10:00 по зоне GMT+11 т.е. 2014-02-11 в 3:00 по Москве.
+                    </xsd:documentation>
+                </xsd:annotation>
+                <xsd:sequence>
+                    <xsd:element name="dlvStart" type="typens:timeOfDay">
+                        <xsd:annotation>
+                            <xsd:documentation>
+                                Время дня начиная с которого можно доставлять сообщение получателю.
+                            </xsd:documentation>
+                        </xsd:annotation>
+                    </xsd:element>
+                    <xsd:element name="dlvStop" type="typens:timeOfDay">
+                        <xsd:annotation>
+                            <xsd:documentation>
+                                Время дня до которого можно доставлять сообщение получателю.
+                            </xsd:documentation>
+                        </xsd:annotation>
+                    </xsd:element>
+                </xsd:sequence>
+            </xsd:complexType>
+
+            <xsd:complexType name="ConsumeOutMessageResult">
+                <xsd:all>
+                    <xsd:element maxOccurs="1" minOccurs="1" name="consumeOutMessageCode" type="typens:ConsumeOutMessageCode"/>
+                    <xsd:element maxOccurs="1" minOccurs="1" name="messageId" type="xsd:string"/>
+                </xsd:all>
+            </xsd:complexType>
+
+
+            <xsd:complexType name="GetOutMessageArg">
+                <xsd:all>
+                    <xsd:element maxOccurs="1" minOccurs="1" name="messageId" type="xsd:string"/>
+                </xsd:all>
+            </xsd:complexType>
+
+            <xsd:complexType name="GetOutMessageResult">
+                <xsd:all>
+                    <xsd:element maxOccurs="1" minOccurs="1" name="getOutMessageCode" type="typens:GetOutMessageCode"/>
+                    <xsd:element maxOccurs="1" minOccurs="1" name="messageId" type="xsd:string"/>
+                    <xsd:element maxOccurs="1" minOccurs="0" name="outMessage" type="typens:OutMessage"/>
+                </xsd:all>
+            </xsd:complexType>
+
+
+            <xsd:complexType name="GetOutMessageDlvStatusArg">
+                <xsd:all>
+                    <xsd:element maxOccurs="1" minOccurs="1" name="messageId" type="xsd:string"/>
+                </xsd:all>
+            </xsd:complexType>
+
+            <xsd:complexType name="GetOutMessageDlvStatusResult">
+                <xsd:all>
+                    <xsd:element maxOccurs="1" minOccurs="1" name="getOutMessageDlvStatusCode" type="typens:GetOutMessageDlvStatusCode"/>
+                    <xsd:element maxOccurs="1" minOccurs="1" name="messageId" type="xsd:string"/>
+                    <xsd:element maxOccurs="1" minOccurs="0" name="outMessageDlvStatus" type="typens:OutMessageDlvStatus"/>
+                </xsd:all>
+            </xsd:complexType>
+
+            <xsd:complexType name="OutMessageOptions">
+                <xsd:sequence>
+                    <xsd:element maxOccurs="unbounded" minOccurs="0" name="option" type="typens:KeyValueParam"/>
+                </xsd:sequence>
+            </xsd:complexType>
+
+            <xsd:complexType name="OutMessageTemplate">
+                <xsd:sequence>
+                    <xsd:element minOccurs="0" name="language" type="typens:TemplateLanguage"/>
+                    <xsd:element maxOccurs="1" minOccurs="1" name="text" type="xsd:string"/>
+                    <xsd:element maxOccurs="unbounded" minOccurs="0" name="outMessageTemplateParam" type="typens:KeyValueParam"/>
+                </xsd:sequence>
+            </xsd:complexType>
+
+            <xsd:complexType name="KeyValueParam">
+                <xsd:all>
+                    <xsd:element maxOccurs="1" minOccurs="1" name="key" type="xsd:string"/>
+                    <xsd:element maxOccurs="1" minOccurs="1" name="value" type="xsd:string"/>
+                </xsd:all>
+            </xsd:complexType>
+
+            <xsd:complexType name="OutMessage">
+                <xsd:all>
+                    <xsd:element maxOccurs="1" minOccurs="1" name="messageId" type="xsd:string">
+                        <xsd:annotation>
+                            <xsd:documentation>
+                                Уникальный идентификатор для исходящего сообщения который присваивается ИС.
+                            </xsd:documentation>
+                        </xsd:annotation>
+                    </xsd:element>
+                    <xsd:element maxOccurs="1" minOccurs="1" name="timestamp" type="xsd:dateTime">
+                        <xsd:annotation>
+                            <xsd:documentation>
+                                Время создания сообщения банковской системой.
+                            </xsd:documentation>
+                        </xsd:annotation>
+                    </xsd:element>
+                    <xsd:element maxOccurs="1" minOccurs="1" name="outMessageTypeId" type="xsd:string">
+                        <xsd:annotation>
+                            <xsd:documentation>
+                                Тип посылаемого сообщения. Тип должен быть зарегистрирован в шлюзе.
+                            </xsd:documentation>
+                        </xsd:annotation>
+                    </xsd:element>
+                    <xsd:element maxOccurs="1" minOccurs="1" name="subject" type="xsd:string">
+                        <xsd:annotation>
+                            <xsd:documentation>
+                                Подпись исходящего сообщения. Телефонный номер или строковый отправитель SMS-сообщения.
+                                Например, «Bank» без кавычек. При получении SMS-сообщения, эта строка отобразится на мобильном телефоне в поле «От кого».
+                            </xsd:documentation>
+                        </xsd:annotation>
+                    </xsd:element>
+                    <xsd:element maxOccurs="1" minOccurs="1" name="address">
+                        <xsd:annotation>
+                            <xsd:documentation>
+                                Адрес получателя исходящего сообщения. Телефонный номер абонента (клиента) в международном формате ITU-T E.164, т.е. только цифры, первая – код страны, без знака «+».
+                            </xsd:documentation>
+                        </xsd:annotation>
+                        <xsd:simpleType>
+                            <xsd:restriction base="xsd:string">
+                                <xsd:pattern value="7[0-9]{10}|[0-689][0-9]{8,14}"/>
+                            </xsd:restriction>
+                        </xsd:simpleType>
+                    </xsd:element>
+                    <xsd:element maxOccurs="1" minOccurs="1" name="priority" type="typens:OutMessagePriority">
+                        <xsd:annotation>
+                            <xsd:documentation>
+                                Приоритет исходящего сообщения.
+                            </xsd:documentation>
+                        </xsd:annotation>
+                    </xsd:element>
+                    <xsd:element maxOccurs="1" minOccurs="0" name="startTime" type="xsd:dateTime">
+                        <xsd:annotation>
+                            <xsd:documentation>
+                                Момент времени после которого можно начинать отправку сообщения.
+
+                                Параметры startTime и stopTime используются для указания интервала отправки сообщения по календарю.
+                                Если startTime не указан, сообщение отправляется по факту получения от ИС с учетом текущей очереди.
+
+                                Допустимо указание параметра startTime без указания stopTime.
+
+                                Практическое применение:
+
+                                Отправка сообщений в будущем – т.н. отложенные сообщения. ИС может передать сообщение с указанным startTime = 2014-02-07T11:30:00.
+                                Сообщение начнет отправляться не ранее указанной даты и времени.
+                            </xsd:documentation>
+                        </xsd:annotation>
+                    </xsd:element>
+                    <xsd:element maxOccurs="1" minOccurs="0" name="stopTime" type="xsd:dateTime">
+                        <xsd:annotation>
+                            <xsd:documentation>
+                                Момент времени до которого отправка сообщения должна быть выполнена.
+
+                                Параметры startTime и stopTime используются для указания интервала отправки сообщения по календарю.
+                                Если stopTime не указан, сообщение можно отправлять в не зависимости от того как долго сообщение лежало в очереди на отправку, т.е. сообщение не может устареть.
+
+                                Допустимо указание параметра stopTime без указания startTime.
+
+                                Практическое применение:
+
+                                Ограничение на отправку сообщений – сообщение должно быть отправлено не ранее 2014-02-08T00:00:00 (startTime) и не позднее 2014-02-08T23:59:59 (stopTime).
+                                Если сообщение по какой-либо причине не было отправлено за указанный интервал (большая очередь или технические проблемы) то сообщение не будет отправлено никогда.
+                            </xsd:documentation>
+                        </xsd:annotation>
+                    </xsd:element>
+                    <xsd:element maxOccurs="1" minOccurs="0" name="dlvInterval" type="typens:DlvInterval"/>
+                    <xsd:element maxOccurs="1" minOccurs="0" name="timezone">
+                        <xsd:annotation>
+                            <xsd:documentation>
+                                Код временной зоны получателя в соответствии с которой будет учитываться интервал доставки сообщения.
+                                Используется для переопределения временной зоны абонента определенной sms-шлюзом по номеру телефона.
+
+                                Например, ИС отправляет сообщение абоненту 7924ххххххх.
+                                Sms-шлюз определяет временную зону абонента – Дальний Восток (GMT+11:00), но Банк знает, что абонент в данный момент находится в Москве
+                                и может переопределить временную зону для отправки сообщения, указав timezone = GMT+4:00.
+                                Этот параметр обычно используется в совокупности с параметрами dlvStart и dlvStop.
+                            </xsd:documentation>
+                        </xsd:annotation>
+                        <xsd:simpleType>
+                            <xsd:restriction base="xsd:string">
+                                <xsd:pattern value="GMT[+\-][01]?[0-9](:[0-5][0-9])?"/>
+                            </xsd:restriction>
+                        </xsd:simpleType>
+                    </xsd:element>
+                    <xsd:element maxOccurs="1" minOccurs="0" name="comment" type="xsd:string"/>
+                    <xsd:element maxOccurs="1" minOccurs="1" name="text" type="xsd:string"/>
+                    <xsd:element maxOccurs="1" minOccurs="1" name="outMessageDlvStatus" type="typens:OutMessageDlvStatus"/>
+                </xsd:all>
+            </xsd:complexType>
+
+            <xsd:complexType name="OutMessageDlvStatus">
+                <xsd:all>
+                    <xsd:element maxOccurs="1" minOccurs="1" name="dlvStatus" type="typens:OutMessageDlvStatusDlvStatus"/>
+                    <xsd:element maxOccurs="1" minOccurs="1" name="dlvStatusAt" type="xsd:dateTime"/>
+                    <xsd:element maxOccurs="1" minOccurs="0" name="dlvError" type="xsd:string"/>
+                    <xsd:element maxOccurs="1" minOccurs="0" name="dlvMethod" type="typens:OutMessageDlvMethod"/>
+                </xsd:all>
+            </xsd:complexType>
+
+            <xsd:simpleType name="OutMessagePriority">
+                <xsd:restriction base="xsd:string">
+                    <xsd:enumeration value="low"/>
+                    <xsd:enumeration value="normal"/>
+                    <xsd:enumeration value="high"/>
+                    <xsd:enumeration value="realtime"/>
+                </xsd:restriction>
+            </xsd:simpleType>
+
+            <xsd:simpleType name="OutMessageDlvMethod">
+                <xsd:restriction base="xsd:string">
+                    <xsd:enumeration value="sms"/>
+                    <xsd:enumeration value="push"/>
+                    <xsd:enumeration value="im"/>
+                    <xsd:enumeration value="push-sms"/>
+                    <xsd:enumeration value="im-sms"/>
+                </xsd:restriction>
+            </xsd:simpleType>
+
+            <xsd:simpleType name="OutMessageDlvStatusDlvStatus">
+                <xsd:restriction base="xsd:string">
+                    <xsd:enumeration value="gate-initial"/>
+                    <xsd:enumeration value="gate-declined"/>
+                    <xsd:enumeration value="gate-failed"/>
+                    <xsd:enumeration value="gate-cancelled"/>
+                    <xsd:enumeration value="gate-sent"/>
+                    <xsd:enumeration value="gate-rejected"/>
+                    <xsd:enumeration value="gate-accepted"/>
+                    <xsd:enumeration value="provider-initial"/>
+                    <xsd:enumeration value="provider-delayed"/>
+                    <xsd:enumeration value="provider-sent"/>
+                    <xsd:enumeration value="provider-delivered"/>
+                    <xsd:enumeration value="provider-read"/>
+                    <xsd:enumeration value="provider-undelivered"/>
+                    <xsd:enumeration value="provider-failed"/>
+                    <xsd:enumeration value="provider-cancelled"/>
+                    <xsd:enumeration value="provider-unknown"/>
+                </xsd:restriction>
+            </xsd:simpleType>
+
+            <xsd:simpleType name="ConsumeOutMessageResponseCode">
+                <xsd:restriction base="xsd:string">
+                    <xsd:enumeration value="ok"/>
+                    <xsd:enumeration value="error-system-blocked"/>
+                    <xsd:enumeration value="error-message-id-duplicate"/>
+                </xsd:restriction>
+            </xsd:simpleType>
+
+            <xsd:simpleType name="GetOutMessageResponseCode">
+                <xsd:restriction base="xsd:string">
+                    <xsd:enumeration value="ok"/>
+                    <xsd:enumeration value="error-system-blocked"/>
+                </xsd:restriction>
+            </xsd:simpleType>
+
+            <xsd:simpleType name="GetOutMessageDlvStatusResponseCode">
+                <xsd:restriction base="xsd:string">
+                    <xsd:enumeration value="ok"/>
+                    <xsd:enumeration value="error-system-blocked"/>
+                </xsd:restriction>
+            </xsd:simpleType>
+
+            <xsd:simpleType name="OutMessageServiceFaultCode">
+                <xsd:restriction base="xsd:string">
+                    <xsd:enumeration value="error-system"/>
+                    <xsd:enumeration value="error-auth"/>
+                    <xsd:enumeration value="error-syntax"/>
+                </xsd:restriction>
+            </xsd:simpleType>
+
+            <xsd:simpleType name="ConsumeOutMessageCode">
+                <xsd:restriction base="xsd:string">
+                    <xsd:enumeration value="ok"/>
+                    <xsd:enumeration value="error-system"/>
+                    <xsd:enumeration value="error-message-id-format"/>
+                    <xsd:enumeration value="error-message-id-duplicate"/>
+                    <xsd:enumeration value="error-subject-unknown"/>
+                    <xsd:enumeration value="error-address-format"/>
+                    <xsd:enumeration value="error-priority-format"/>
+                    <xsd:enumeration value="error-start-time-format"/>
+                    <xsd:enumeration value="error-instant-message-data"/>
+                    <xsd:enumeration value="error-out-message-template-text-not-specified"/>
+                    <xsd:enumeration value="error-out-message-template-param-key-format"/>
+                    <xsd:enumeration value="error-out-message-template-param-unknown"/>
+                    <xsd:enumeration value="error-out-message-template-param-value-format"/>
+                </xsd:restriction>
+            </xsd:simpleType>
+
+            <xsd:simpleType name="GetOutMessageCode">
+                <xsd:restriction base="xsd:string">
+                    <xsd:enumeration value="ok"/>
+                    <xsd:enumeration value="error-system"/>
+                    <xsd:enumeration value="error-message-id-unknown"/>
+                </xsd:restriction>
+            </xsd:simpleType>
+
+            <xsd:simpleType name="GetOutMessageDlvStatusCode">
+                <xsd:restriction base="xsd:string">
+                    <xsd:enumeration value="ok"/>
+                    <xsd:enumeration value="error-system"/>
+                    <xsd:enumeration value="error-message-id-unknown"/>
+                </xsd:restriction>
+            </xsd:simpleType>
+
+            <xsd:simpleType name="timeOfDay">
+                <xsd:restriction base="xsd:string">
+                    <xsd:pattern value="([01]?[0-9]|2[0-3])(:[0-5][0-9](:[0-5][0-9])?)?"/>
+                </xsd:restriction>
+            </xsd:simpleType>
+
+            <xsd:simpleType name="TemplateLanguage">
+                <xsd:restriction base="xsd:string">
+                    <xsd:enumeration value="ru"/>
+                    <xsd:enumeration value="en"/>
+                    <xsd:enumeration value="tr"/>
+                </xsd:restriction>
+            </xsd:simpleType>
+
+            <xsd:complexType name="InstantMessage">
+                <xsd:annotation>
+                    <xsd:documentation>
+                        Дополнительный контент для отправки в IM мессенджеры.
+                    </xsd:documentation>
+                </xsd:annotation>
+                <xsd:sequence>
+                    <xsd:element minOccurs="0" name="button" type="typens:Button"/>
+                    <xsd:element minOccurs="0" name="imageUrl" type="xsd:anyURI"/>
+                </xsd:sequence>
+            </xsd:complexType>
+
+            <xsd:complexType name="Button">
+                <xsd:sequence>
+                    <xsd:element name="caption" type="xsd:string"/>
+                    <xsd:element name="action" type="xsd:anyURI"/>
+                </xsd:sequence>
+            </xsd:complexType>
+
+        </xsd:schema>
+
+    </types>
+
+    <message name="consumeOutMessageRequest">
+        <part element="typens:ConsumeOutMessageRequest" name="parameters"/>
+    </message>
+
+    <message name="consumeOutMessageResponse">
+        <part element="typens:ConsumeOutMessageResponse" name="parameters"/>
+    </message>
+
+    <message name="getOutMessageRequest">
+        <part element="typens:GetOutMessageRequest" name="parameters"/>
+    </message>
+
+    <message name="getOutMessageResponse">
+        <part element="typens:GetOutMessageResponse" name="parameters"/>
+    </message>
+
+    <message name="getOutMessageDlvStatusRequest">
+        <part element="typens:GetOutMessageDlvStatusRequest" name="parameters"/>
+    </message>
+
+    <message name="getOutMessageDlvStatusResponse">
+        <part element="typens:GetOutMessageDlvStatusResponse" name="parameters"/>
+    </message>
+
+    <message name="OutMessageServiceFault">
+        <part element="typens:OutMessageServiceFault" name="fault"/>
+    </message>
+
+    <portType name="OutMessageService">
+
+        <operation name="consumeOutMessage">
+            <input message="tns:consumeOutMessageRequest" name="consumeOutMessageRequest"/>
+            <output message="tns:consumeOutMessageResponse" name="consumeOutMessageResponse"/>
+            <fault message="tns:OutMessageServiceFault" name="OutMessageServiceFault"/>
+        </operation>
+
+        <operation name="getOutMessage">
+            <input message="tns:getOutMessageRequest" name="getOutMessageRequest"/>
+            <output message="tns:getOutMessageResponse" name="getOutMessageResponse"/>
+            <fault message="tns:OutMessageServiceFault" name="OutMessageServiceFault"/>
+        </operation>
+
+        <operation name="getOutMessageDlvStatus">
+            <input message="tns:getOutMessageDlvStatusRequest" name="getOutMessageDlvStatusRequest"/>
+            <output message="tns:getOutMessageDlvStatusResponse" name="getOutMessageDlvStatusResponse"/>
+            <fault message="tns:OutMessageServiceFault" name="OutMessageServiceFault"/>
+        </operation>
+
+    </portType>
+
+    <binding name="OutMessageServiceSOAPBinding" type="tns:OutMessageService">
+        <soap:binding style="document" transport="http://schemas.xmlsoap.org/soap/http"/>
+
+        <operation name="consumeOutMessage">
+
+            <soap:operation soapAction="http://www.mfms.ru/mfmsgate/out-message-service/consumeOutMessage"/>
+
+            <input name="consumeOutMessageRequest">
+                <soap:body use="literal"/>
+            </input>
+
+            <output name="consumeOutMessageResponse">
+                <soap:body use="literal"/>
+            </output>
+
+            <fault name="OutMessageServiceFault">
+                <soap:fault name="OutMessageServiceFault" use="literal"/>
+            </fault>
+
+        </operation>
+
+        <operation name="getOutMessage">
+
+            <soap:operation soapAction="http://www.mfms.ru/mfmsgate/out-message-service/getOutMessage"/>
+
+            <input name="getOutMessageRequest">
+                <soap:body use="literal"/>
+            </input>
+
+            <output name="getOutMessageResponse">
+                <soap:body use="literal"/>
+            </output>
+
+            <fault name="OutMessageServiceFault">
+                <soap:fault name="OutMessageServiceFault" use="literal"/>
+            </fault>
+
+        </operation>
+
+        <operation name="getOutMessageDlvStatus">
+
+            <soap:operation soapAction="http://www.mfms.ru/mfmsgate/out-message-service/getOutMessageDlvStatus"/>
+
+            <input name="getOutMessageDlvStatusRequest">
+                <soap:body use="literal"/>
+            </input>
+
+            <output name="getOutMessageDlvStatusResponse">
+                <soap:body use="literal"/>
+            </output>
+
+            <fault name="OutMessageServiceFault">
+                <soap:fault name="OutMessageServiceFault" use="literal"/>
+            </fault>
+
+        </operation>
+
+    </binding>
+
+    <service name="OutMessageService">
+        <port binding="tns:OutMessageServiceSOAPBinding" name="OutMessageService">
+            <soap:address location="http://rdc-sms-gate1-test.bankrc.local:8181/services/OutMessageService"/>
+        </port>
+    </service>
+</definitions>
